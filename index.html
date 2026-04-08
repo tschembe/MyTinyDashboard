@@ -67,6 +67,35 @@
     font-size: 28px;
     margin-bottom: 10px;
   }
+  .reset-btn-fixed {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  width: calc(100% - 40px);
+  max-width: 420px;
+
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  background: #ff3b30;
+  color: white;
+
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.15s ease;
+}
+
+.reset-btn-fixed:active {
+  transform: translateX(-50%) scale(0.97);
+  opacity: 0.85;
+}
 </style>
 
 </head>
@@ -92,4 +121,5 @@
 </div>
 
 </body>
+  <button class="reset-btn-fixed" onclick="clearCache()">Reset Data</button>
 </html>
