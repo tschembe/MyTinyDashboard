@@ -1,179 +1,501 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Counters</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Counters</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background-color: #f5f5f7;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+    background: #f5f5f7;
+    min-height: 100vh;
+    padding: 48px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
 
-    .container {
-      width: 100%;
-      max-width: 360px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #1d1d1f;
+    margin-bottom: 32px;
+  }
 
-    .card {
-      background: #ffffff;
-      border-radius: 18px;
-      padding: 28px 24px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
-      text-align: center;
-    }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto 24px;
+  }
 
-    .card-label {
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #8e8e93;
-      margin-bottom: 10px;
-    }
+  /* ── CARD ── */
+  .card {
+    background: #fff;
+    border-radius: 20px;
+    padding: 24px 22px 20px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+    position: relative;
+    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  /* setup state: soft blue outline */
+  .card.setup { box-shadow: 0 0 0 2px #b0c8f0, 0 2px 16px rgba(0,0,0,0.06); }
 
-    .day-number {
-      font-size: 64px;
-      font-weight: 700;
-      letter-spacing: -2px;
-      color: #1d1d1f;
-      line-height: 1;
-    }
+  @keyframes popIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+  }
 
-    .day-subtitle {
-      font-size: 14px;
-      color: #8e8e93;
-      margin-top: 8px;
-    }
+  .card-type {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #aeaeb2;
+    margin-bottom: 5px;
+  }
 
-    .click-btn {
-      width: 100%;
-      padding: 16px 20px;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      color: #ffffff;
-      background-color: #0071e3;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      transition: background-color 0.15s ease, transform 0.1s ease;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
+  /* top-right icon cluster */
+  .top-right {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .icon-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: background 0.15s, transform 0.1s;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .icon-btn:active { transform: scale(0.93); }
+  .btn-delete { background: #e5e5ea; color: #636366; }
+  .btn-delete:hover { background: #d1d1d6; }
+  .btn-edit   { background: #e9f2ff; color: #0071e3; }
+  .btn-edit:hover { background: #d0e6ff; }
 
-    .click-btn:hover {
-      background-color: #0077ed;
-    }
+  /* ── NAME display / input ── */
+  .card-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 64px; /* room for two icon-btns */
+  }
 
-    .click-btn:active {
-      background-color: #005cc7;
-      transform: scale(0.98);
-    }
+  /* ── NUMBERS ── */
+  .big-num {
+    font-size: 60px;
+    font-weight: 700;
+    letter-spacing: -2px;
+    color: #1d1d1f;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  .sub-text {
+    font-size: 13px;
+    color: #8e8e93;
+    margin-bottom: 16px;
+  }
 
-    .reset-link {
-      display: block;
-      text-align: center;
-      font-size: 13px;
-      color: #8e8e93;
-      margin-top: 6px;
-      cursor: pointer;
-      text-decoration: none;
-      -webkit-tap-highlight-color: transparent;
-    }
+  /* ── SETUP FORM (shown only during setup) ── */
+  .setup-form { display: flex; flex-direction: column; gap: 10px; }
+  .setup-field { display: flex; flex-direction: column; gap: 4px; }
+  .setup-field label { font-size: 12px; font-weight: 500; color: #636366; }
 
-    .reset-link:hover {
-      color: #636366;
-    }
-  </style>
+  .field-input {
+    font-family: inherit;
+    font-size: 14px;
+    color: #1d1d1f;
+    background: #f5f5f7;
+    border: 1px solid #e5e5ea;
+    border-radius: 10px;
+    padding: 9px 12px;
+    -webkit-appearance: none;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .field-input:focus { border-color: #0071e3; background: #fff; }
+
+  .confirm-btn {
+    margin-top: 4px;
+    padding: 11px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: #0071e3;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .confirm-btn:disabled { background: #b0c8f0; cursor: default; }
+  .confirm-btn:not(:disabled):active { background: #005cc7; transform: scale(0.97); }
+
+  /* ── LOCKED date display ── */
+  .date-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: #636366;
+    background: #f5f5f7;
+    border-radius: 8px;
+    padding: 5px 10px;
+    margin-bottom: 16px;
+  }
+
+  /* ── CLICK COUNTER buttons ── */
+  .btn-row { display: flex; gap: 8px; }
+  .click-btn {
+    flex: 1;
+    padding: 13px 10px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    background: #0071e3;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .click-btn:active { background: #005cc7; transform: scale(0.97); }
+  .reset-btn {
+    padding: 13px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: #636366;
+    background: #f5f5f7;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background 0.15s;
+  }
+  .reset-btn:active { background: #e5e5ea; }
+
+  /* ── ADD BUTTONS ── */
+  .add-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    max-width: 900px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+  }
+  .add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 22px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 500;
+    color: #0071e3;
+    background: #fff;
+    border: 1.5px dashed #b0c8f0;
+    border-radius: 14px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .add-btn:hover { background: #f0f6ff; border-color: #0071e3; }
+  .add-btn:active { background: #e5f0ff; }
+  .plus { font-size: 20px; font-weight: 300; line-height: 1; }
+</style>
 </head>
 <body>
 
-<div class="container">
-
-  <div class="card">
-    <div class="card-label">Day Streak</div>
-    <div class="day-number" id="dayCount">0 🔥</div>
-    <div class="day-subtitle" id="daySubtitle">Loading…</div>
-  </div>
-
-  <div class="card">
-    <div class="card-label">Click Counter</div>
-    <button class="click-btn" id="clickBtn" onclick="handleClick()">Clicked 0 times</button>
-    <a class="reset-link" onclick="resetClicks()" href="javascript:void(0)">Reset</a>
-  </div>
-
+<h1>My Counters</h1>
+<div class="grid" id="grid"></div>
+<div class="add-row">
+  <button class="add-btn" onclick="addCounter('day')"><span class="plus">+</span> Day Counter</button>
+  <button class="add-btn" onclick="addCounter('click')"><span class="plus">+</span> Click Counter</button>
 </div>
 
 <script>
-  var START_DATE = new Date("2025-01-01");
+var STORAGE_KEY = 'counters_v3';
 
-  function getDaysSince(startDate) {
-    var now = new Date();
-    var start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-    now.setHours(0, 0, 0, 0);
-    var diff = now - start;
-    return Math.floor(diff / (1000 * 60 * 60 * 24));
+function load() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  /* defaults: already confirmed so they render in locked state */
+  return [
+    { id: uid(), type: 'day',   name: 'Day Streak',    startDate: '2025-01-01', confirmed: true },
+    { id: uid(), type: 'click', name: 'Click Counter', clicks: 0,               confirmed: true }
+  ];
+}
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(counters)); } catch(e) {}
+}
+
+function uid() { return Math.random().toString(36).slice(2, 10); }
+
+function getDays(dateStr) {
+  if (!dateStr) return 0;
+  var start = new Date(dateStr);
+  var now = new Date();
+  start.setHours(0,0,0,0);
+  now.setHours(0,0,0,0);
+  return Math.max(0, Math.floor((now - start) / 86400000));
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  var p = dateStr.split('-');
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return months[parseInt(p[1],10)-1] + ' ' + parseInt(p[2],10) + ', ' + p[0];
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function findIdx(id) {
+  for (var i = 0; i < counters.length; i++) { if (counters[i].id === id) return i; }
+  return -1;
+}
+
+function timesLabel(n) { return n === 1 ? '1 time' : n + ' times'; }
+
+var counters = load();
+
+/* ── RENDER ── */
+function render() {
+  save();
+  var grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for (var i = 0; i < counters.length; i++) {
+    var c = counters[i];
+    grid.appendChild(c.type === 'day' ? makeDayCard(c) : makeClickCard(c));
+  }
+}
+
+/* ── DAY CARD ── */
+function makeDayCard(c) {
+  var div = document.createElement('div');
+  div.className = 'card' + (c.confirmed ? '' : ' setup');
+  div.id = 'card-' + c.id;
+
+  var days = getDays(c.startDate);
+  var inner = '<div class="card-type">\uD83D\uDCC5 Day Counter</div>';
+
+  if (c.confirmed) {
+    /* locked state */
+    inner +=
+      '<div class="top-right">' +
+        /* '<button class="icon-btn btn-edit" title="Edit" onclick="unlockCounter(\'' + c.id + '\')">\u270E</button>' + */
+        '<button class="icon-btn btn-delete" title="Delete" onclick="deleteCounter(\'' + c.id + '\')">&#x2715;</button>' +
+      '</div>' +
+      '<div class="card-name">' + esc(c.name) + '</div>' +
+      '<div class="big-num" id="num-' + c.id + '">' + days + ' \uD83D\uDD25</div>' +
+      '<div class="sub-text" id="sub-' + c.id + '">days since ' + formatDate(c.startDate) + '</div>' +
+      '<div class="date-chip">\uD83D\uDCC6 ' + formatDate(c.startDate) + '</div>';
+  } else {
+    /* setup state */
+    var today = todayStr();
+    var nameVal = (c.name && c.name !== 'New Day Counter') ? c.name : '';
+    var dateVal = c.startDate || today;
+    inner +=
+      '<div class="top-right">' +
+        '<button class="icon-btn btn-delete" title="Delete" onclick="deleteCounter(\'' + c.id + '\')">&#x2715;</button>' +
+      '</div>' +
+      '<div class="card-name" style="color:#aeaeb2;font-weight:500;">New Day Counter</div>' +
+      '<div class="setup-form">' +
+        '<div class="setup-field"><label>Counter name</label>' +
+          '<input class="field-input" id="sname-' + c.id + '" type="text" placeholder="e.g. No Sugar, Running Streak\u2026" value="' + esc(nameVal) + '" oninput="onSetupInput(\'' + c.id + '\')">' +
+        '</div>' +
+        '<div class="setup-field"><label>Start date</label>' +
+          '<input class="field-input" id="sdate-' + c.id + '" type="date" value="' + esc(dateVal) + '" onchange="onSetupInput(\'' + c.id + '\')">' +
+        '</div>' +
+        '<button class="confirm-btn" id="sbtn-' + c.id + '" onclick="confirmCounter(\'' + c.id + '\')" disabled>Set Counter</button>' +
+      '</div>';
   }
 
-  function updateDayCounter() {
-    var days = getDaysSince(START_DATE);
-    document.getElementById("dayCount").textContent = days + " 🔥";
-    var options = { year: "numeric", month: "long", day: "numeric" };
-    var startStr = START_DATE.toLocaleDateString(undefined, options);
-    document.getElementById("daySubtitle").textContent = "since " + startStr;
+  div.innerHTML = inner;
+
+  if (!c.confirmed) {
+    /* check initial validity after DOM insert (setTimeout = next tick) */
+    setTimeout(function() { onSetupInput(c.id); }, 0);
   }
 
-  function getClicks() {
-    var val = localStorage.getItem("clickCount");
-    return val ? parseInt(val, 10) : 0;
+  return div;
+}
+
+/* ── CLICK CARD ── */
+function makeClickCard(c) {
+  var div = document.createElement('div');
+  div.className = 'card' + (c.confirmed ? '' : ' setup');
+  div.id = 'card-' + c.id;
+
+  var n = c.clicks || 0;
+  var inner = '<div class="card-type">\uD83D\uDC46 Click Counter</div>';
+
+  if (c.confirmed) {
+    inner +=
+      '<div class="top-right">' +
+        /*'<button class="icon-btn btn-edit" title="Edit name" onclick="unlockCounter(\'' + c.id + '\')">\u270E</button>' +*/
+        '<button class="icon-btn btn-delete" title="Delete" onclick="deleteCounter(\'' + c.id + '\')">&#x2715;</button>' +
+      '</div>' +
+      '<div class="card-name">' + esc(c.name) + '</div>' +
+      '<div class="big-num" id="num-' + c.id + '">' + n + '</div>' +
+      '<div class="sub-text" id="sub-' + c.id + '">clicked ' + timesLabel(n) + '</div>' +
+      '<div class="btn-row">' +
+        '<button class="click-btn" onclick="doClick(\'' + c.id + '\')">Tap to count</button>' +
+        '<button class="reset-btn" onclick="resetClick(\'' + c.id + '\')">Reset</button>' +
+      '</div>';
+  } else {
+    var nameVal = (c.name && c.name !== 'New Click Counter') ? c.name : '';
+    inner +=
+      '<div class="top-right">' +
+        '<button class="icon-btn btn-delete" title="Delete" onclick="deleteCounter(\'' + c.id + '\')">&#x2715;</button>' +
+      '</div>' +
+      '<div class="card-name" style="color:#aeaeb2;font-weight:500;">New Click Counter</div>' +
+      '<div class="setup-form">' +
+        '<div class="setup-field"><label>Counter name</label>' +
+          '<input class="field-input" id="sname-' + c.id + '" type="text" placeholder="e.g. Coffee, Pull-ups\u2026" value="' + esc(nameVal) + '" oninput="onSetupInput(\'' + c.id + '\')">' +
+        '</div>' +
+        '<button class="confirm-btn" id="sbtn-' + c.id + '" onclick="confirmCounter(\'' + c.id + '\')" disabled>Set Counter</button>' +
+      '</div>';
+    setTimeout(function() { onSetupInput(c.id); }, 0);
   }
 
-  function saveClicks(n) {
-    localStorage.setItem("clickCount", n);
-  }
+  div.innerHTML = inner;
+  return div;
+}
 
-  function updateClickBtn(n) {
-    var btn = document.getElementById("clickBtn");
-    if (n === 1) {
-      btn.textContent = "Clicked 1 time";
-    } else {
-      btn.textContent = "Clicked " + n + " times";
-    }
-  }
+/* ── SETUP LOGIC ── */
+function onSetupInput(id) {
+  var nameEl = document.getElementById('sname-' + id);
+  var btn    = document.getElementById('sbtn-'  + id);
+  if (!nameEl || !btn) return;
+  var nameOk = nameEl.value.trim().length > 0;
+  btn.disabled = !nameOk;
+}
 
-  function handleClick() {
-    var n = getClicks() + 1;
-    saveClicks(n);
-    updateClickBtn(n);
-  }
+function confirmCounter(id) {
+  var i = findIdx(id); if (i < 0) return;
+  var nameEl = document.getElementById('sname-' + id);
+  var dateEl = document.getElementById('sdate-' + id);
+  var name = nameEl ? nameEl.value.trim() : '';
+  if (!name) return;
+  counters[i].name = name;
+  if (dateEl) counters[i].startDate = dateEl.value;
+  counters[i].confirmed = true;
+  render();
+}
 
-  function resetClicks() {
-    saveClicks(0);
-    updateClickBtn(0);
-  }
+function unlockCounter(id) {
+  var i = findIdx(id); if (i < 0) return;
+  counters[i].confirmed = false;
+  render();
+  setTimeout(function() {
+    var ni = document.getElementById('sname-' + id);
+    if (ni) { ni.focus(); ni.select(); }
+  }, 80);
+}
 
-  updateDayCounter();
-  updateClickBtn(getClicks());
+/* ── CLICK COUNTER ── */
+function doClick(id) {
+  var i = findIdx(id); if (i < 0) return;
+  counters[i].clicks = (counters[i].clicks || 0) + 1;
+  var n = counters[i].clicks;
+  var numEl = document.getElementById('num-' + id);
+  var subEl = document.getElementById('sub-' + id);
+  if (numEl) numEl.textContent = n;
+  if (subEl) subEl.textContent = 'clicked ' + timesLabel(n);
+  save();
+}
+
+function resetClick(id) {
+  var i = findIdx(id); if (i < 0) return;
+  counters[i].clicks = 0;
+  var numEl = document.getElementById('num-' + id);
+  var subEl = document.getElementById('sub-' + id);
+  if (numEl) numEl.textContent = '0';
+  if (subEl) subEl.textContent = 'clicked 0 times';
+  save();
+}
+
+/* ── DELETE / ADD ── */
+function deleteCounter(id) {
+  var i = findIdx(id); if (i < 0) return;
+  counters.splice(i, 1);
+  render();
+}
+
+function todayStr() {
+  var t = new Date();
+  var mm = ('0' + (t.getMonth()+1)).slice(-2);
+  var dd = ('0' + t.getDate()).slice(-2);
+  return t.getFullYear() + '-' + mm + '-' + dd;
+}
+
+function addCounter(type) {
+  var c = { id: uid(), type: type, confirmed: false };
+  if (type === 'day') {
+    c.name = 'New Day Counter';
+    c.startDate = todayStr();
+    c.clicks = 0;
+  } else {
+    c.name = 'New Click Counter';
+    c.clicks = 0;
+  }
+  counters.push(c);
+  render();
+  setTimeout(function() {
+    var card = document.getElementById('card-' + c.id);
+    if (!card) return;
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    var ni = document.getElementById('sname-' + c.id);
+    if (ni) ni.focus();
+  }, 120);
+}
+
+render();
+
+/* auto-refresh day counters every minute */
+setInterval(function() {
+  for (var i = 0; i < counters.length; i++) {
+    var c = counters[i];
+    if (c.type !== 'day' || !c.confirmed) continue;
+    var numEl = document.getElementById('num-' + c.id);
+    if (numEl) numEl.textContent = getDays(c.startDate) + ' \uD83D\uDD25';
+  }
+}, 60000);
 </script>
-
 </body>
 </html>
