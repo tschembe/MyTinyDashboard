@@ -67,8 +67,43 @@
     font-size: 28px;
     margin-bottom: 10px;
   }
-</style>
+  .reset-mini {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
 
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+
+  background: rgba(0, 0, 0, 0.06);
+  color: #6e6e73;
+
+  border: none;
+  border-radius: 999px;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.reset-mini:active {
+  transform: translateX(-50%) scale(0.95);
+  background: rgba(0, 0, 0, 0.1);
+}
+</style>
+<script>
+function clearCache() {
+  if (!confirm("Delete all app data?")) return;
+
+  localStorage.removeItem("clickCount");
+  localStorage.removeItem("tb_blocks");
+  localStorage.removeItem("tb_tags");
+}
+</script>
 </head>
 <body>
 
@@ -92,5 +127,5 @@
 </div>
 
 </body>
-  <button class="reset-btn-fixed" onclick="clearCache()">Reset Data</button>
+  <button class="reset-mini" onclick="clearCache()">Reset Data</button>
 </html>
